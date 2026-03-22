@@ -3,11 +3,10 @@ name: Build & Deploy to GCP VM
 on:
   push:
     branches: [main]
-    paths:
-      - '../..'
+  workflow_dispatch:
 
 env:
-  IMAGE: ghcr.io/${{ github.repository_owner }}/checkout-backend
+  IMAGE: ghcr.io/${{ github.repository_owner }}/shopify-checkout-backend
 
 jobs:
   deploy:
@@ -25,7 +24,6 @@ jobs:
           password: ${{ secrets.GHCR_TOKEN }}
 
       - name: Build & Push Docker image
-        working-directory: checkout-backend
         run: |
           docker build -t ${{ env.IMAGE }}:${{ github.sha }} -t ${{ env.IMAGE }}:latest .
           docker push ${{ env.IMAGE }}:${{ github.sha }}
@@ -39,16 +37,13 @@ jobs:
           key: ${{ secrets.GCP_VM_SSH_KEY }}
           script: |
             echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
             docker pull ${{ env.IMAGE }}:latest
-
-            docker stop checkout-backend || true
-            docker rm checkout-backend || true
-
+            docker stop shopify-checkout-backend || true
+            docker rm shopify-checkout-backend || true
             docker run -d \
               --name checkout-backend \
               --restart unless-stopped \
               -p 8080:8080 \
-              -v /home/cs2/checkout-config:/app/config \
+              -v /home/cs2/shopify-checkout-config:/app/config \
               -e SPRING_CONFIG_ADDITIONAL_LOCATION=file:/app/config/ \
               ${{ env.IMAGE }}:latest
