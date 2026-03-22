@@ -37,13 +37,14 @@ jobs:
           key: ${{ secrets.GCP_VM_SSH_KEY }}
           script: |
             echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            docker pull ${{ env.IMAGE }}:latest
-            docker stop shopify-checkout-backend || true
-            docker rm shopify-checkout-backend || true
+            docker pull ghcr.io/axtant/shopify-checkout-backend:latest
+            docker logout ghcr.io
+            docker stop checkout-backend || true
+            docker rm checkout-backend || true
             docker run -d \
               --name checkout-backend \
               --restart unless-stopped \
               -p 8080:8080 \
               -v /home/cs2/shopify-checkout-config:/app/config \
               -e SPRING_CONFIG_ADDITIONAL_LOCATION=file:/app/config/ \
-              ${{ env.IMAGE }}:latest
+              ghcr.io/axtant/shopify-checkout-backend:latest
