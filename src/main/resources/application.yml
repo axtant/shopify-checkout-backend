@@ -1,0 +1,20 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: checkout-backend
+
+shopify:
+  api-version: 2026-01
+  stores: []  # defined in application-prod.yml on the server (never commit secrets)
+
+razorpay:
+  key-id: placeholder
+  key-secret: placeholder
+  prepaid-discount-percent: 15
+
+cors:
+  allowed-origins:
+    - http://localhost:5173
+    - http://localhost:5174
