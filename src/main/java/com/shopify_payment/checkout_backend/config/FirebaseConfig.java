@@ -29,12 +29,20 @@ public class FirebaseConfig {
         GoogleCredentials credentials;
 
         if (serviceAccountPath != null && !serviceAccountPath.isBlank()) {
-            InputStream stream = getClass().getClassLoader().getResourceAsStream(serviceAccountPath);
-            if (stream == null) throw new IOException("Firebase service account not found on classpath: " + serviceAccountPath);
+            // Try filesystem path first (for Docker volume mounts)
+            java.io.File file = new java.io.File(serviceAccountPath);
+            InputStream stream;
+            if (file.exists()) {
+                stream = new java.io.FileInputStream(file);
+                log.info("[Firebase] Initialized with service account from filesystem: {}", serviceAccountPath);
+            } else {
+                // Fall back to classpath (for local dev in src/main/resources)
+                stream = getClass().getClassLoader().getResourceAsStream(serviceAccountPath);
+                if (stream == null) throw new IOException("Firebase service account not found: " + serviceAccountPath);
+                log.info("[Firebase] Initialized with service account from classpath: {}", serviceAccountPath);
+            }
             credentials = GoogleCredentials.fromStream(stream);
-            log.info("[Firebase] Initialized with service account: {}", serviceAccountPath);
         } else {
-            // Falls back to GOOGLE_APPLICATION_CREDENTIALS environment variable
             credentials = GoogleCredentials.getApplicationDefault();
             log.info("[Firebase] Initialized with application default credentials");
         }
