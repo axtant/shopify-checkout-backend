@@ -9,8 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 @Configuration
 public class FirebaseConfig {
@@ -29,7 +29,9 @@ public class FirebaseConfig {
         GoogleCredentials credentials;
 
         if (serviceAccountPath != null && !serviceAccountPath.isBlank()) {
-            credentials = GoogleCredentials.fromStream(new FileInputStream(serviceAccountPath));
+            InputStream stream = getClass().getClassLoader().getResourceAsStream(serviceAccountPath);
+            if (stream == null) throw new IOException("Firebase service account not found on classpath: " + serviceAccountPath);
+            credentials = GoogleCredentials.fromStream(stream);
             log.info("[Firebase] Initialized with service account: {}", serviceAccountPath);
         } else {
             // Falls back to GOOGLE_APPLICATION_CREDENTIALS environment variable

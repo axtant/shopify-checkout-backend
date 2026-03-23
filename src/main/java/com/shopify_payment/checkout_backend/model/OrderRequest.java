@@ -15,6 +15,7 @@ public class OrderRequest {
     @NotBlank
     private String lastName;
 
+    @NotBlank
     @Pattern(regexp = "\\d{10}", message = "Phone must be 10 digits")
     private String phone;
 
@@ -31,6 +32,7 @@ public class OrderRequest {
     @NotBlank
     private String state;
 
+    @NotBlank
     @Pattern(regexp = "\\d{6}", message = "Pincode must be 6 digits")
     private String pincode;
 
